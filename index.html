@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz — Patologias Cirúrgicas Externas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .container { width: 100%; max-width: 780px; margin: 30px auto; padding: 0 16px; }
+  .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); overflow: hidden; }
+  .header { background: linear-gradient(135deg, #1e3a5f, #2e6da4); color: #fff; padding: 28px 32px; }
+  .header h1 { font-size: 1.5rem; font-weight: 700; }
+  .header p { font-size: 0.93rem; opacity: 0.85; margin-top: 4px; }
+  .body { padding: 32px; }
+  .start-screen { text-align: center; }
+  .start-screen h2 { font-size: 1.25rem; color: #1e3a5f; margin-bottom: 12px; }
+  .start-screen p { color: #555; margin-bottom: 28px; font-size: 0.97rem; }
+  .btn { display: inline-block; padding: 13px 36px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
+  .btn-primary { background: #1e3a5f; color: #fff; }
+  .btn-primary:hover { background: #16304f; }
+  .progress-bar-wrap { height: 7px; background: #e2e8f0; border-radius: 4px; margin-bottom: 22px; }
+  .progress-bar { height: 7px; background: linear-gradient(90deg, #1e3a5f, #2e6da4); border-radius: 4px; transition: width 0.4s; }
+  .progress-text { font-size: 0.82rem; color: #888; margin-bottom: 8px; text-align: right; }
+  .question-text { font-size: 1.07rem; font-weight: 600; color: #1a2533; margin-bottom: 22px; line-height: 1.55; }
+  .options { display: flex; flex-direction: column; gap: 11px; }
+  .option { padding: 13px 17px; border-radius: 9px; border: 2px solid #e2e8f0; cursor: pointer; font-size: 0.96rem; color: #222; transition: border-color 0.2s, background 0.2s; text-align: left; }
+  .option:hover:not(.disabled) { border-color: #2e6da4; background: #f0f6ff; }
+  .option.correct { border-color: #16a34a; background: #f0fdf4; color: #14532d; }
+  .option.wrong { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
+  .option.disabled { cursor: default; }
+  .explanation { margin-top: 20px; padding: 14px 16px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.93rem; color: #444; line-height: 1.55; }
+  .explanation strong { color: #b45309; }
+  .next-btn-wrap { margin-top: 24px; text-align: right; }
+  .result-screen { text-align: center; }
+  .result-screen h2 { font-size: 1.4rem; color: #1e3a5f; margin-bottom: 16px; }
+  .score-circle { width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #1e3a5f, #2e6da4); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 4px 16px rgba(30,58,95,0.25); }
+  .score-circle .big { font-size: 2.1rem; font-weight: 800; }
+  .score-circle .label { font-size: 0.78rem; opacity: 0.85; }
+  .stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 28px; }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.5rem; font-weight: 700; }
+  .stat .desc { font-size: 0.8rem; color: #666; }
+  .stat.green .num { color: #16a34a; }
+  .stat.red .num { color: #dc2626; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <div class="header">
+      <h1>Patologias Cirúrgicas Externas</h1>
+      <p>Cirurgia Pediátrica — Pediatria</p>
+    </div>
+    <div class="body">
+      <div class="start-screen" id="startScreen">
+        <h2>Pronto para testar seus conhecimentos?</h2>
+        <p>Este quiz contém <strong>20 questões</strong> sobre hérnias, criptorquia, fimose, escroto agudo, onfalocele, gastrosquise e outras patologias cirúrgicas externas em pediatria.</p>
+        <button class="btn btn-primary" onclick="startQuiz()">Começar</button>
+      </div>
+      <div class="hidden" id="quizScreen">
+        <div class="progress-text" id="progressText"></div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
+        <div class="question-text" id="questionText"></div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="explanation hidden" id="explanation"></div>
+        <div class="next-btn-wrap hidden" id="nextBtnWrap">
+          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Próxima questão</button>
+        </div>
+      </div>
+      <div class="hidden result-screen" id="resultScreen">
+        <h2>Quiz finalizado!</h2>
+        <div class="score-circle">
+          <span class="big" id="scorePercent"></span>
+          <span class="label">acertos</span>
+        </div>
+        <div class="stats">
+          <div class="stat green"><div class="num" id="totalCorrect"></div><div class="desc">Corretas</div></div>
+          <div class="stat red"><div class="num" id="totalWrong"></div><div class="desc">Erradas</div></div>
+          <div class="stat"><div class="num" id="totalQ"></div><div class="desc">Total</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="restartQuiz()">Refazer quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const rawQuestions = [
+  {
+    question: "Hérnia umbilical em criança de 2 anos sem complicações: qual é a conduta correta?",
+    options: ["Conduta expectante — não operar antes dos 3 anos, pois a maioria fecha espontaneamente", "Cirurgia imediata ao diagnóstico", "Usar faixa abdominal compressiva até os 5 anos", "Cirurgia eletiva após os 6 meses de vida", "Encaminhar para cirurgia somente se > 2 cm"],
+    correctIndex: 0,
+    explanation: "A hérnia umbilical raramente encarce­ra e a grande maioria fecha espontaneamente. Não se opera antes dos 3 anos. A cirurgia é indicada se persistir após 3–4 anos, for muito grande ou sintomática."
+  },
+  {
+    question: "Qual é a conduta ao diagnóstico de hérnia inguinal indireta em lactente?",
+    options: ["Cirurgia imediata (tão logo quanto possível após o diagnóstico), pois o risco de encarceramento é alto", "Observar por 6 meses antes de operar", "Operar apenas se encarcerada", "Aguardar fechamento espontâneo como na hérnia umbilical", "Usar faixa inguinal compressiva temporariamente"],
+    correctIndex: 0,
+    explanation: "A hérnia inguinal em crianças tem alto risco de encarceramento, especialmente em lactentes. A cirurgia deve ser realizada imediatamente após o diagnóstico, sem aguardar."
+  },
+  {
+    question: "O 'sinal da seda' na palpação do cordão espermático sugere qual diagnóstico?",
+    options: ["Hérnia inguinal indireta (estruturas peritoneais deslizando sob os dedos)", "Hidrocele comunicante", "Criptorquia", "Torção testicular", "Orquite viral"],
+    correctIndex: 0,
+    explanation: "O sinal da seda é produzido pela palpação do cordão espermático espessado pelo saco herniário, com sensação de duas estruturas deslizando entre si. É sinal clínico de hérnia inguinal indireta."
+  },
+  {
+    question: "Como diferenciar hérnia inguinal de hidrocele à beira do leito?",
+    options: ["Hidrocele: transluminação positiva, não redutível, sem sinal da seda; hérnia: redutível, sinal da seda positivo, sem transluminação", "Ambas translumiram igualmente, diferenciadas apenas por USG", "Hidrocele: massa endurecida não transluminante; hérnia: mole e transluminante", "Hidrocele tem sinal da seda positivo; hérnia não translumina", "São indistinguíveis clinicamente"],
+    correctIndex: 0,
+    explanation: "A hidrocele translumina (luz passa pela coleção líquida), não é redutível e não tem sinal da seda. A hérnia é redutível, tem sinal da seda e não translumina. USG pode ajudar em casos duvidosos."
+  },
+  {
+    question: "Qual é a idade limite para correção cirúrgica da criptorquia e por quê?",
+    options: ["Antes dos 2 anos, para preservar a fertilidade e reduzir o risco de malignização", "Antes dos 5 anos, pois o risco de malignização só aumenta após essa idade", "Antes dos 6 meses, pois o testículo pode descer espontaneamente até então", "Não há urgência; pode operar em qualquer idade", "Antes dos 10 anos, apenas se o testículo não desceu espontaneamente"],
+    correctIndex: 0,
+    explanation: "A criptorquia deve ser corrigida antes dos 2 anos para preservar a espermatogênese (temperatura corporal danifica o testículo) e reduzir o risco de malignização. USG não é necessário — o testículo sempre existe, mesmo que não palpável."
+  },
+  {
+    question: "Qual afirmação sobre criptorquia e hérnia inguinal está CORRETA?",
+    options: ["Todo paciente com criptorquia tem hérnia inguinal associada (processus vaginalis patente)", "Criptorquia e hérnia inguinal são patologias independentes sem associação", "Criptorquia associa-se a hidrocele em 50% dos casos, mas raramente a hérnia", "A hérnia inguinal está presente apenas nos casos de criptorquia bilateral", "Não há necessidade de explorar o canal inguinal durante a orquidopexia"],
+    correctIndex: 0,
+    explanation: "Todo paciente com criptorquia tem hérnia inguinal ipsilateral associada (pelo processus vaginalis patente que permitiu a não descida testicular). Por isso, durante a orquidopexia sempre se corrige a hérnia."
+  },
+  {
+    question: "Fimose fisiológica em criança de 2 anos sem sintomas: qual é a conduta?",
+    options: ["Conduta expectante — fimose fisiológica é normal até os 3 anos e pode resolver espontaneamente", "Postectomia imediata", "Aplicar creme de corticoide e dilatar o prepúcio forçadamente", "Indicar postioplastia eletiva após os 6 meses", "Solicitar uretrocistografia antes de qualquer decisão"],
+    correctIndex: 0,
+    explanation: "A fimose é fisiológica até os 3 anos. Conduta expectante. As indicações de cirurgia incluem: ITU de repetição, parafimose, bálano-postite de repetição, RVU e não exposição da glande após os 3 anos."
+  },
+  {
+    question: "Quais são as indicações de correção cirúrgica da fimose em pediatria?",
+    options: ["ITU de repetição, parafimose, bálano-postite de repetição, RVU e não exposição da glande após os 3 anos", "Apenas estética e preferência familiar", "Fimose em qualquer grau após os 12 meses", "Dificuldade de higiene em qualquer idade", "Apenas quando houver ITU febril complicada"],
+    correctIndex: 0,
+    explanation: "As indicações cirúrgicas de fimose incluem: ITU de repetição, parafimose (emergência), bálano-postite de repetição, RVU e não exposição da glande após os 3 anos. Fimose fisiológica assintomática não é indicação."
+  },
+  {
+    question: "Menino de 12 anos com início agudo de dor escrotal intensa, náuseas e vômitos, sem febre. O Doppler mostra ausência de fluxo sanguíneo testicular. Qual é o diagnóstico e a conduta?",
+    options: ["Torção testicular — emergência cirúrgica; exploração imediata em até 6 horas para salvar o testículo", "Orquite viral — analgesia e repouso", "Epididimite bacteriana — antibiótico oral", "Hérnia inguinal encarcerada — redução manual seguida de cirurgia eletiva", "Hidrocele aguda — punção aspirativa"],
+    correctIndex: 0,
+    explanation: "Torção testicular: dor aguda, sem febre, Doppler sem fluxo. É EMERGÊNCIA cirúrgica — exploração em até 6 horas salva o testículo em ~90% dos casos. Após 24h, a taxa de salvamento cai drasticamente. Orquite viral tem fluxo aumentado ao Doppler."
+  },
+  {
+    question: "Como diferenciar torção testicular de orquite viral pelo Doppler de escroto?",
+    options: ["Torção: fluxo ausente ou diminuído; orquite viral: fluxo aumentado (hipervascularização)", "Torção: fluxo aumentado; orquite viral: fluxo ausente", "Ambas têm padrão Doppler idêntico; diferenciação é apenas clínica", "Torção: fluxo normal; orquite: fluxo variável", "Doppler não tem valor diagnóstico no escroto agudo"],
+    correctIndex: 0,
+    explanation: "No Doppler: torção testicular = fluxo ausente ou reduzido (isquemia); orquite viral = fluxo aumentado (hiperemia inflamatória). É o exame de escolha no escroto agudo quando o diagnóstico é incerto, mas não deve atrasar a cirurgia em torção evidente."
+  },
+  {
+    question: "O que diferencia onfalocele de gastrosquise anatomicamente?",
+    options: ["Onfalocele: defeito abdominal com umbigo no centro da malformação, coberto por membrana; gastrosquise: defeito à direita do umbigo, sem membrana protetora", "Gastrosquise: umbigo no centro do defeito; onfalocele: defeito lateral esquerdo", "Ambas têm umbigo inserido no defeito e cobertura membranosa", "Onfalocele: defeito à direita; gastrosquise: defeito à esquerda do umbigo", "Não há diferença anatômica — são nomes diferentes para a mesma malformação"],
+    correctIndex: 0,
+    explanation: "Onfalocele: o umbigo está inserido no centro do defeito (omfalo = umbigo), coberto por membrana amniótica, frequentemente com outras malformações associadas. Gastrosquise: defeito à direita do umbigo, alças intestinais expostas sem membrana, menor associação com outras malformações."
+  },
+  {
+    question: "Em relação ao prognóstico, qual tem maior morbimortalidade neonatal: onfalocele ou gastrosquise?",
+    options: ["Onfalocele, por ter maior frequência de malformações associadas (cardíacas, cromossômicas)", "Gastrosquise, por não ter membrana protetora e maior exposição das alças", "São equivalentes em morbimortalidade", "Gastrosquise tem maior mortalidade por sepse; onfalocele por choque", "Onfalocele pequena tem pior prognóstico que gastrosquise grande"],
+    correctIndex: 0,
+    explanation: "A onfalocele tem maior morbimortalidade por sua frequente associação com outras malformações (cardíacas em 30–50%, cromossômicas como trissomia 18 e 13). A gastrosquise tem menor associação com outras malformações, mas exige correção cirúrgica urgente."
+  },
+  {
+    question: "Hemangiomas em localização especial (couro cabeludo, face, região periocular) requerem qual investigação adicional?",
+    options: ["TC ou RNM para avaliação de extensão, possível envolvimento intracraniano (síndrome PHACE) ou compressão de estruturas", "USG Doppler local apenas", "Biópsia para confirmar o diagnóstico", "Nenhuma investigação adicional além do exame físico", "Apenas acompanhamento fotográfico seriado"],
+    correctIndex: 0,
+    explanation: "Hemangiomas em couro cabeludo, face e região periocular exigem TC ou RNM para avaliar extensão e possível envolvimento intracraniano (síndrome PHACE) ou orbitário. Grandes hemangiomas faciais podem estar associados a anomalias vasculares cerebrais."
+  },
+  {
+    question: "Linfoadenopatia cervical persistente, dura, indolor, em criança de 8 anos, sem sinais infecciosos, com suor noturno e perda de peso. Qual é o principal diagnóstico a afastar?",
+    options: ["Linfoma de Hodgkin", "Adenite bacteriana aguda supurativa", "Doença da arranhadura do gato (Bartonella henselae)", "Mononucleose infecciosa", "Adenite por micobactéria atípica"],
+    correctIndex: 0,
+    explanation: "Linfoadenopatia persistente, dura, indolor, com sintomas B (febre noturna, sudorese, perda de peso >10%) em criança escolar sugere linfoma de Hodgkin. Biopsia é indispensável. Adenite bacteriana é aguda e dolorosa; doença do arranhadura tem pápula prévia e contato com gato."
+  },
+  {
+    question: "Caso clínico: lactente de 3 meses com massa cervical avermelhada, endurecida, dolorosa à palpação, com flutuação e febre alta. Qual diagnóstico e conduta?",
+    options: ["Adenite bacteriana aguda supurativa — drenagem cirúrgica + antibiótico (S. aureus é o principal agente)", "Linfoma — biópsia imediata", "Cisto do ducto tireoglosso — ressecção eletiva", "Hemangioma complicado — propranolol oral", "Adenite por micobactéria atípica — rifampicina por 6 meses"],
+    correctIndex: 0,
+    explanation: "Adenite bacteriana aguda supurativa: massa cervical inflamatória, dolorosa, flutuante, febril em lactente. Principal agente: S. aureus. Tratamento: drenagem cirúrgica + antibioticoterapia (oxacilina ou cefalosporina). Não confundir com adenite por micobactéria atípica (evolução insidiosa, sem febre alta)."
+  },
+  {
+    question: "Em relação à parafimose, qual é a abordagem correta?",
+    options: ["Emergência — redução manual imediata do prepúcio; se não conseguir, dorsal slit cirúrgico de urgência", "Corticoide tópico e reavaliação em 48h", "Apenas analgesia e orientar higiene", "Postectomia eletiva em até 1 semana", "Antibiótico oral e compressas frias"],
+    correctIndex: 0,
+    explanation: "Parafimose (prepúcio retraído preso atrás da glande causando edema e isquemia) é emergência urológica. Redução manual imediata (compressão do edema + deslizamento do prepúcio). Se falhar: incisão dorsal (dorsal slit) de urgência para evitar necrose da glande."
+  },
+  {
+    question: "Qual afirmação sobre hemangiomas em pediatria está CORRETA?",
+    options: ["A maioria involui espontaneamente até os 5–7 anos; tratamento ativo com propranolol é indicado para hemangiomas complicados ou em localização de risco", "Todos os hemangiomas precisam de tratamento cirúrgico imediato", "Hemangiomas nunca involui espontaneamente — sempre precisam de intervenção", "Propranolol é contraindicado em lactentes", "Hemangiomas são malignos e precisam de biópsia obrigatória"],
+    correctIndex: 0,
+    explanation: "A maioria dos hemangiomas involuiu espontaneamente (~50% até os 5 anos, ~70% até os 7 anos). Propranolol é indicado para hemangiomas complicados (ulceração, hemorragia, insuficiência cardíaca) ou em localização de risco (periocular, vias aéreas, face). Não são malignos."
+  },
+  {
+    question: "A gastrosquise neonatal requer qual cuidado imediato após o nascimento antes da cirurgia?",
+    options: ["Cobrir as alças com compressa úmida morna e saco plástico estéril, acesso venoso e correção hidro-eletrolítica urgente", "Reduzir manualmente as alças para dentro do abdome antes de encaminhar", "Apenas cobertura com curativo seco até a cirurgia", "Sutura de pele imediata no berçário", "Aguardar 24h para verificar se há redução espontânea"],
+    correctIndex: 0,
+    explanation: "Na gastrosquise, as alças expostas perdem calor e líquido rapidamente. Medidas imediatas: cobrir com compressa úmida morna + saco plástico estéril (evita perda de calor e ressecamento), acesso venoso e reposição hídrica generosa. Cirurgia de urgência para redução e fechamento abdominal."
+  },
+  {
+    question: "Menino de 5 anos apresenta prepúcio que não expõe a glande. Não tem história de ITU, bálano-postite ou parafimose. Qual a conduta?",
+    options: ["Tentar exposição da glande com creme de corticoide tópico (betametasona 0,1% 2×/dia por 4–8 semanas); cirurgia apenas se falhar ou houver sintomas", "Postectomia imediata pois tem 5 anos e já deveria ter fimose resolvida", "Conduta expectante sem tratamento até os 10 anos", "Indicação de postioplastia eletiva independente de sintomas", "Antibiótico profilático para prevenir ITU"],
+    correctIndex: 0,
+    explanation: "Fimose sem sintomas em criança de 5 anos: primeira linha é corticoide tópico (betametasona 0,1% 2×/dia por 4–8 semanas), que tem taxa de sucesso de ~85%. Cirurgia (postectomia ou postioplastia) fica para falha do tratamento ou presença de complicações."
+  },
+  {
+    question: "Qual das seguintes características distingue o cisto do ducto tireoglosso de outras massas cervicais médias em crianças?",
+    options: ["Localização na linha média cervical, movimenta-se com a deglutição e com a protrusão da língua", "Localização lateral, pulsátil, sem movimentação com deglutição", "Massa endurecida, imóvel, com calcificações à ecografia", "Massa flutuante com sinais inflamatórios agudos", "Localização submandibular, com fístula cutânea"],
+    correctIndex: 0,
+    explanation: "O cisto do ducto tireoglosso localiza-se na linha média cervical (entre o osso hioide e o istmo da tireoide), move-se com a deglutição E com a protrusão da língua (por seu trajeto embriológico). Tratamento: procedimento de Sistrunk (remoção do cisto + porção central do hioide)."
+  }
+];
+
+function shuffleQuestion(q) {
+  const correctText = q.options[q.correctIndex];
+  const shuffled = [...q.options];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return { ...q, options: shuffled, correctIndex: shuffled.indexOf(correctText) };
+}
+
+function prepareQuestions() {
+  const shuffledQs = [...rawQuestions];
+  for (let i = shuffledQs.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffledQs[i], shuffledQs[j]] = [shuffledQs[j], shuffledQs[i]];
+  }
+  return shuffledQs.map(shuffleQuestion);
+}
+
+let questions = [];
+let current = 0;
+let correct = 0;
+let wrong = 0;
+
+function startQuiz() {
+  questions = prepareQuestions();
+  current = 0; correct = 0; wrong = 0;
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('quizScreen').classList.remove('hidden');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  document.getElementById('progressText').textContent = `Questão ${current + 1} de ${questions.length}`;
+  document.getElementById('progressBar').style.width = `${((current) / questions.length) * 100}%`;
+  document.getElementById('questionText').textContent = q.question;
+  const cont = document.getElementById('optionsContainer');
+  cont.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    cont.appendChild(btn);
+  });
+  document.getElementById('explanation').classList.add('hidden');
+  document.getElementById('nextBtnWrap').classList.add('hidden');
+}
+
+function selectAnswer(idx) {
+  const q = questions[current];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[idx].classList.add(idx === q.correctIndex ? 'correct' : 'wrong');
+  if (idx !== q.correctIndex) opts[q.correctIndex].classList.add('correct');
+  if (idx === q.correctIndex) correct++; else wrong++;
+  const exp = document.getElementById('explanation');
+  exp.innerHTML = `<strong>Explicação:</strong> ${q.explanation}`;
+  exp.classList.remove('hidden');
+  const wrap = document.getElementById('nextBtnWrap');
+  wrap.classList.remove('hidden');
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current + 1 < questions.length ? 'Próxima questão' : 'Ver resultado';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizScreen').classList.add('hidden');
+  const res = document.getElementById('resultScreen');
+  res.classList.remove('hidden');
+  const pct = Math.round((correct / questions.length) * 100);
+  document.getElementById('scorePercent').textContent = `${pct}%`;
+  document.getElementById('totalCorrect').textContent = correct;
+  document.getElementById('totalWrong').textContent = wrong;
+  document.getElementById('totalQ').textContent = questions.length;
+}
+
+function restartQuiz() {
+  document.getElementById('resultScreen').classList.add('hidden');
+  startQuiz();
+}
+</script>
+</body>
+</html>
