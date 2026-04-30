@@ -6,85 +6,251 @@
 <title>Quiz — Patologias Cirúrgicas Externas</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-  .container { width: 100%; max-width: 780px; margin: 30px auto; padding: 0 16px; }
-  .card { background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); overflow: hidden; }
-  .header { background: linear-gradient(135deg, #1e3a5f, #2e6da4); color: #fff; padding: 28px 32px; }
-  .header h1 { font-size: 1.5rem; font-weight: 700; }
-  .header p { font-size: 0.93rem; opacity: 0.85; margin-top: 4px; }
-  .body { padding: 32px; }
-  .start-screen { text-align: center; }
-  .start-screen h2 { font-size: 1.25rem; color: #1e3a5f; margin-bottom: 12px; }
-  .start-screen p { color: #555; margin-bottom: 28px; font-size: 0.97rem; }
-  .btn { display: inline-block; padding: 13px 36px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; transition: background 0.2s; }
-  .btn-primary { background: #1e3a5f; color: #fff; }
-  .btn-primary:hover { background: #16304f; }
-  .progress-bar-wrap { height: 7px; background: #e2e8f0; border-radius: 4px; margin-bottom: 22px; }
-  .progress-bar { height: 7px; background: linear-gradient(90deg, #1e3a5f, #2e6da4); border-radius: 4px; transition: width 0.4s; }
-  .progress-text { font-size: 0.82rem; color: #888; margin-bottom: 8px; text-align: right; }
-  .question-text { font-size: 1.07rem; font-weight: 600; color: #1a2533; margin-bottom: 22px; line-height: 1.55; }
-  .options { display: flex; flex-direction: column; gap: 11px; }
-  .option { padding: 13px 17px; border-radius: 9px; border: 2px solid #e2e8f0; cursor: pointer; font-size: 0.96rem; color: #222; transition: border-color 0.2s, background 0.2s; text-align: left; }
-  .option:hover:not(.disabled) { border-color: #2e6da4; background: #f0f6ff; }
-  .option.correct { border-color: #16a34a; background: #f0fdf4; color: #14532d; }
-  .option.wrong { border-color: #dc2626; background: #fef2f2; color: #7f1d1d; }
-  .option.disabled { cursor: default; }
-  .explanation { margin-top: 20px; padding: 14px 16px; background: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 6px; font-size: 0.93rem; color: #444; line-height: 1.55; }
-  .explanation strong { color: #b45309; }
-  .next-btn-wrap { margin-top: 24px; text-align: right; }
-  .result-screen { text-align: center; }
-  .result-screen h2 { font-size: 1.4rem; color: #1e3a5f; margin-bottom: 16px; }
-  .score-circle { width: 130px; height: 130px; border-radius: 50%; background: linear-gradient(135deg, #1e3a5f, #2e6da4); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 24px; box-shadow: 0 4px 16px rgba(30,58,95,0.25); }
-  .score-circle .big { font-size: 2.1rem; font-weight: 800; }
-  .score-circle .label { font-size: 0.78rem; opacity: 0.85; }
-  .stats { display: flex; justify-content: center; gap: 28px; margin-bottom: 28px; }
-  .stat { text-align: center; }
-  .stat .num { font-size: 1.5rem; font-weight: 700; }
-  .stat .desc { font-size: 0.8rem; color: #666; }
-  .stat.green .num { color: #16a34a; }
-  .stat.red .num { color: #dc2626; }
-  .hidden { display: none; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #1a1a1a;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #1e3a5f;
+    color: white;
+    padding: 20px 30px;
+    text-align: center;
+  }
+  header h1 { font-size: 22px; margin-bottom: 4px; }
+  header p { font-size: 13px; opacity: 0.8; }
+
+  .quiz-container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 16px 60px;
+  }
+
+  #startScreen {
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  #startScreen h2 { font-size: 20px; color: #1e3a5f; margin-bottom: 12px; }
+  #startScreen p { font-size: 14px; color: #555; margin-bottom: 24px; line-height: 1.6; }
+
+  .progress-bar-bg {
+    background: #dde3ea;
+    border-radius: 8px;
+    height: 8px;
+    margin-bottom: 8px;
+  }
+  .progress-bar-fill {
+    background: #2563eb;
+    height: 8px;
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+
+  .question-card {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+  .question-number {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #2563eb;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  .question-text {
+    font-size: 15px;
+    line-height: 1.65;
+    color: #1a1a1a;
+    margin-bottom: 22px;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: #f7f9fc;
+    border: 2px solid #dde3ea;
+    border-radius: 8px;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    line-height: 1.5;
+  }
+  .option-btn:hover:not(:disabled) {
+    background: #e8f0fe;
+    border-color: #2563eb;
+  }
+  .option-btn.correct {
+    background: #d1fae5;
+    border-color: #16a34a;
+    color: #166534;
+  }
+  .option-btn.wrong {
+    background: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+  }
+  .option-btn:disabled { cursor: default; }
+
+  .explanation {
+    display: none;
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #166534;
+  }
+  .explanation.show { display: block; }
+
+  .btn-next {
+    display: none;
+    margin-top: 18px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 28px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-next:hover { background: #1d4ed8; }
+  .btn-next.show { display: inline-block; }
+
+  .btn-primary {
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 14px 36px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-primary:hover { background: #1d4ed8; }
+
+  #resultScreen {
+    display: none;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  }
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #1e3a5f;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  .score-circle .score-num { font-size: 32px; font-weight: 700; }
+  .score-circle .score-denom { font-size: 13px; opacity: 0.8; }
+  #resultScreen h2 { font-size: 20px; color: #1e3a5f; margin-bottom: 10px; }
+  #resultScreen p { font-size: 14px; color: #555; margin-bottom: 24px; }
+
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .stat-box {
+    background: #f7f9fc;
+    border-radius: 8px;
+    padding: 12px 20px;
+    text-align: center;
+    min-width: 90px;
+  }
+  .stat-box .stat-val { font-size: 22px; font-weight: 700; }
+  .stat-box .stat-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .stat-box.green .stat-val { color: #16a34a; }
+  .stat-box.red .stat-val { color: #dc2626; }
+  .stat-box.blue .stat-val { color: #2563eb; }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="card">
-    <div class="header">
-      <h1>Patologias Cirúrgicas Externas</h1>
-      <p>Cirurgia Pediátrica — Pediatria</p>
+
+<header>
+  <h1>Patologias Cirúrgicas Externas</h1>
+  <p>Cirurgia Pediátrica — Pediatria</p>
+</header>
+
+<div class="quiz-container">
+
+  <div id="startScreen">
+    <h2>Quiz de Revisão</h2>
+    <p>20 questões sobre hérnias, criptorquia, fimose, escroto agudo, onfalocele, gastrosquise e outras patologias cirúrgicas externas em pediatria.<br><br>Responda cada questão e veja a explicação antes de avançar.</p>
+    <button class="btn-primary" onclick="startQuiz()">Começar Quiz</button>
+  </div>
+
+  <div id="quizArea" style="display:none;">
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
     </div>
-    <div class="body">
-      <div class="start-screen" id="startScreen">
-        <h2>Pronto para testar seus conhecimentos?</h2>
-        <p>Este quiz contém <strong>20 questões</strong> sobre hérnias, criptorquia, fimose, escroto agudo, onfalocele, gastrosquise e outras patologias cirúrgicas externas em pediatria.</p>
-        <button class="btn btn-primary" onclick="startQuiz()">Começar</button>
-      </div>
-      <div class="hidden" id="quizScreen">
-        <div class="progress-text" id="progressText"></div>
-        <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar"></div></div>
-        <div class="question-text" id="questionText"></div>
-        <div class="options" id="optionsContainer"></div>
-        <div class="explanation hidden" id="explanation"></div>
-        <div class="next-btn-wrap hidden" id="nextBtnWrap">
-          <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Próxima questão</button>
-        </div>
-      </div>
-      <div class="hidden result-screen" id="resultScreen">
-        <h2>Quiz finalizado!</h2>
-        <div class="score-circle">
-          <span class="big" id="scorePercent"></span>
-          <span class="label">acertos</span>
-        </div>
-        <div class="stats">
-          <div class="stat green"><div class="num" id="totalCorrect"></div><div class="desc">Corretas</div></div>
-          <div class="stat red"><div class="num" id="totalWrong"></div><div class="desc">Erradas</div></div>
-          <div class="stat"><div class="num" id="totalQ"></div><div class="desc">Total</div></div>
-        </div>
-        <button class="btn btn-primary" onclick="restartQuiz()">Refazer quiz</button>
-      </div>
+    <div class="progress-label" id="progressLabel">Questão 0 de 20</div>
+
+    <div class="question-card" id="questionCard">
+      <div class="question-number" id="questionNumber"></div>
+      <div class="question-text" id="questionText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="explanation" id="explanation"></div>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">Próxima questão →</button>
     </div>
   </div>
+
+  <div id="resultScreen">
+    <div class="score-circle">
+      <span class="score-num" id="scoreFinal">0</span>
+      <span class="score-denom" id="scoreDenom">de 20</span>
+    </div>
+    <h2 id="resultTitle"></h2>
+    <p id="resultMsg"></p>
+    <div class="stats-row">
+      <div class="stat-box green">
+        <div class="stat-val" id="statCorrect">0</div>
+        <div class="stat-lbl">Acertos</div>
+      </div>
+      <div class="stat-box red">
+        <div class="stat-val" id="statWrong">0</div>
+        <div class="stat-lbl">Erros</div>
+      </div>
+      <div class="stat-box blue">
+        <div class="stat-val" id="statPct">0%</div>
+        <div class="stat-lbl">Aproveitamento</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="restartQuiz()">Refazer Quiz</button>
+  </div>
+
 </div>
+
 <script>
 const rawQuestions = [
   {
@@ -229,55 +395,72 @@ function prepareQuestions() {
 }
 
 let questions = [];
-let current = 0;
-let correct = 0;
-let wrong = 0;
+let currentIndex = 0;
+let score = 0;
+let answered = 0;
 
 function startQuiz() {
   questions = prepareQuestions();
-  current = 0; correct = 0; wrong = 0;
-  document.getElementById('startScreen').classList.add('hidden');
-  document.getElementById('quizScreen').classList.remove('hidden');
+  currentIndex = 0;
+  score = 0;
+  answered = 0;
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('quizArea').style.display = 'block';
   renderQuestion();
 }
 
 function renderQuestion() {
-  const q = questions[current];
-  document.getElementById('progressText').textContent = `Questão ${current + 1} de ${questions.length}`;
-  document.getElementById('progressBar').style.width = `${((current) / questions.length) * 100}%`;
+  const q = questions[currentIndex];
+  const total = questions.length;
+
+  document.getElementById('progressBar').style.width = ((currentIndex / total) * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${currentIndex + 1} de ${total}`;
+  document.getElementById('questionNumber').textContent = `Questão ${currentIndex + 1}`;
   document.getElementById('questionText').textContent = q.question;
-  const cont = document.getElementById('optionsContainer');
-  cont.innerHTML = '';
+
+  const container = document.getElementById('optionsContainer');
+  container.innerHTML = '';
   q.options.forEach((opt, i) => {
     const btn = document.createElement('button');
-    btn.className = 'option';
+    btn.className = 'option-btn';
     btn.textContent = opt;
     btn.onclick = () => selectAnswer(i);
-    cont.appendChild(btn);
+    container.appendChild(btn);
   });
-  document.getElementById('explanation').classList.add('hidden');
-  document.getElementById('nextBtnWrap').classList.add('hidden');
+
+  document.getElementById('explanation').classList.remove('show');
+  document.getElementById('explanation').textContent = '';
+  document.getElementById('btnNext').classList.remove('show');
 }
 
-function selectAnswer(idx) {
-  const q = questions[current];
-  const opts = document.querySelectorAll('.option');
-  opts.forEach(o => o.classList.add('disabled'));
-  opts[idx].classList.add(idx === q.correctIndex ? 'correct' : 'wrong');
-  if (idx !== q.correctIndex) opts[q.correctIndex].classList.add('correct');
-  if (idx === q.correctIndex) correct++; else wrong++;
+function selectAnswer(selectedIndex) {
+  const q = questions[currentIndex];
+  const buttons = document.querySelectorAll('.option-btn');
+
+  buttons.forEach(btn => btn.disabled = true);
+
+  if (selectedIndex === q.correctIndex) {
+    buttons[selectedIndex].classList.add('correct');
+    score++;
+  } else {
+    buttons[selectedIndex].classList.add('wrong');
+    buttons[q.correctIndex].classList.add('correct');
+  }
+
+  answered++;
   const exp = document.getElementById('explanation');
-  exp.innerHTML = `<strong>Explicação:</strong> ${q.explanation}`;
-  exp.classList.remove('hidden');
-  const wrap = document.getElementById('nextBtnWrap');
-  wrap.classList.remove('hidden');
-  const btn = document.getElementById('nextBtn');
-  btn.textContent = current + 1 < questions.length ? 'Próxima questão' : 'Ver resultado';
+  exp.textContent = q.explanation;
+  exp.classList.add('show');
+
+  const btnNext = document.getElementById('btnNext');
+  btnNext.textContent = currentIndex < questions.length - 1 ? 'Próxima questão →' : 'Ver resultado';
+  btnNext.classList.add('show');
 }
 
 function nextQuestion() {
-  current++;
-  if (current < questions.length) {
+  currentIndex++;
+  if (currentIndex < questions.length) {
     renderQuestion();
   } else {
     showResult();
@@ -285,18 +468,38 @@ function nextQuestion() {
 }
 
 function showResult() {
-  document.getElementById('quizScreen').classList.add('hidden');
-  const res = document.getElementById('resultScreen');
-  res.classList.remove('hidden');
-  const pct = Math.round((correct / questions.length) * 100);
-  document.getElementById('scorePercent').textContent = `${pct}%`;
-  document.getElementById('totalCorrect').textContent = correct;
-  document.getElementById('totalWrong').textContent = wrong;
-  document.getElementById('totalQ').textContent = questions.length;
+  document.getElementById('quizArea').style.display = 'none';
+  const result = document.getElementById('resultScreen');
+  result.style.display = 'block';
+
+  const total = questions.length;
+  const pct = Math.round((score / total) * 100);
+
+  document.getElementById('scoreFinal').textContent = score;
+  document.getElementById('scoreDenom').textContent = `de ${total}`;
+  document.getElementById('statCorrect').textContent = score;
+  document.getElementById('statWrong').textContent = total - score;
+  document.getElementById('statPct').textContent = pct + '%';
+
+  let title, msg;
+  if (pct >= 90) {
+    title = 'Excelente!';
+    msg = 'Domínio completo do conteúdo. Você está preparado para a prova.';
+  } else if (pct >= 70) {
+    title = 'Muito bom!';
+    msg = 'Bom domínio geral. Revise os pontos onde errou antes da prova.';
+  } else if (pct >= 50) {
+    title = 'Razoável';
+    msg = 'Ainda há pontos a consolidar. Releia o relatório e refaça o quiz.';
+  } else {
+    title = 'Precisa revisar';
+    msg = 'Recomendo reler o relatório completo antes de tentar novamente.';
+  }
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultMsg').textContent = msg;
 }
 
 function restartQuiz() {
-  document.getElementById('resultScreen').classList.add('hidden');
   startQuiz();
 }
 </script>
